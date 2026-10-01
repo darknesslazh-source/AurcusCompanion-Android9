@@ -1,5 +1,0 @@
-[
-  {"id":"demo-001","name":"Sample Blade","slot":"Weapon","attack":24,"defense":0,"magic":0,"notes":"Fictional demonstration item"},
-  {"id":"demo-002","name":"Sample Robe","slot":"Body","attack":0,"defense":12,"magic":8,"notes":"Fictional demonstration item"},
-  {"id":"demo-003","name":"Sample Charm","slot":"Accessory","attack":3,"defense":0,"magic":10,"notes":"Fictional demonstration item"}
-]
