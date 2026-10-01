@@ -20,6 +20,24 @@ class MainActivity : ComponentActivity() {
                     surface = Color(0xFF1B2028)
                 )
             ) { CompanionScreen() }
+        setupModListToggle()
+    private fun setupModListToggle() {
+        val toggleButton =
+            findViewById<android.widget.Button>(R.id.btnToggleMods)
+
+        val modList =
+            findViewById<android.view.View>(R.id.modListContainer)
+
+        toggleButton.setOnClickListener {
+            val isExpanded =
+                modList.visibility == android.view.View.VISIBLE
+
+            if (isExpanded) {
+                modList.visibility = android.view.View.GONE
+                toggleButton.text = "Maximize Daftar Mod"
+            } else {
+                modList.visibility = android.view.View.VISIBLE
+                toggleButton.text = "Minimize Daftar Mod"
         }
     }
 }
