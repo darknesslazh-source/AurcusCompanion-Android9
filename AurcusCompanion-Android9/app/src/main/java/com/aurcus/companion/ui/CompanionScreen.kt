@@ -8,8 +8,6 @@ import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -20,12 +18,19 @@ import com.aurcus.companion.domain.BuildPlanner
 import com.aurcus.companion.domain.EquipmentComparator
 import com.aurcus.companion.monitor.PerformanceMonitor
 import com.aurcus.companion.overlay.FloatingOverlayService
+import kotlinx.coroutines.delay
 
-private val sampleItems = listOf(
-    Item("demo-001", "Sample Blade", "Weapon", attack = 24, notes = "Data demo"),
-    Item("demo-002", "Sample Robe", "Body", defense = 12, magic = 8, notes = "Data demo"),
-    Item("demo-003", "Sample Charm", "Accessory", attack = 3, magic = 10, notes = "Data demo")
+private val demoItems = listOf(
+    Item("demo-001", "Sample Blade", "Weapon", attack = 24, notes = "Contoh fiktif; bukan database resmi"),
+    Item("demo-002", "Sample Robe", "Body", defense = 12, magic = 8, notes = "Contoh fiktif; bukan database resmi"),
+    Item("demo-003", "Sample Charm", "Accessory", attack = 3, magic = 10, notes = "Contoh fiktif; bukan database resmi")
 )
+private val demoMaps = listOf(
+    "Map / area (catatan manual)" to "Tambahkan nama area dan koordinat yang kamu catat sendiri.",
+    "Rute farming A" to "Catatan rute lokal; tidak mengirim perintah perpindahan ke game.",
+    "Rute farming B" to "Catatan rute lokal; tidak membaca lokasi game secara otomatis."
+)
+private val demoMobs = listOf("Mob / target A", "Mob / target B", "Boss / target C")
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -33,157 +38,122 @@ fun CompanionScreen() {
     val context = LocalContext.current
     val store = remember { LocalStore(context) }
     var selectedTab by remember { mutableIntStateOf(0) }
-    var strength by remember { mutableStateOf("10") }
-    var vitality by remember { mutableStateOf("10") }
-    var dexterity by remember { mutableStateOf("10") }
-    var intelligence by remember { mutableStateOf("10") }
-    var query by remember { mutableStateOf("") }
+    var attack by remember { mutableStateOf("100") }
+    var skillMultiplier by remember { mutableStateOf("1.5") }
+    var critPercent by remember { mutableStateOf("0") }
+    var speedStat by remember { mutableStateOf("100") }
+    var speedTarget by remember { mutableStateOf("120") }
+    var mapNotes by remember { mutableStateOf("") }
+    var selectedMob by remember { mutableStateOf(demoMobs.first()) }
+    var spawnNotes by remember { mutableStateOf("") }
+    var farmRunning by remember { mutableStateOf(false) }
+    var farmSeconds by remember { mutableIntStateOf(0) }
     var tasks by remember { mutableStateOf(store.loadTasks()) }
-    val tabs = listOf("Home", "Build", "Items", "Tracker", "Compare", "Monitor")
+    val tabs = listOf("Home", "Damage", "Map", "Spawn", "Farm", "Speed")
+
+    LaunchedEffect(farmRunning) {
+        while (farmRunning) {
+            delay(1000)
+            farmSeconds += 1
+        }
+    }
 
     Scaffold(
-        topBar = {
-            TopAppBar(title = {
-                Column {
-                    Text("AURCUS COMPANION")
-                    Text("Android 9+ • Local companion • v1.0.0",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.secondary)
-                }
-            })
-        },
-        bottomBar = {
-            NavigationBar {
-                val icons = listOf(
-                    Icons.Default.Dashboard, Icons.Default.Tune, Icons.Default.Inventory2,
-                    Icons.Default.CheckCircle, Icons.Default.CompareArrows, Icons.Default.Memory
-                )
-                tabs.forEachIndexed { index, label ->
-                    NavigationBarItem(
-                        selected = selectedTab == index,
-                        onClick = { selectedTab = index },
-                        icon = { Icon(icons[index], contentDescription = label) },
-                        label = { Text(label) }
-                    )
-                }
+        topBar = { TopAppBar(title = { Column {
+            Text("AURCUS COMPANION")
+            Text("Android 9+ • Companion lokal • v1.1.0", style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.secondary)
+        } }) },
+        bottomBar = { NavigationBar {
+            tabs.forEachIndexed { index, label ->
+                NavigationBarItem(selected = selectedTab == index, onClick = { selectedTab = index },
+                    icon = { Text(listOf("⌂", "⚔", "⌖", "◎", "◷", "➤")[index]) }, label = { Text(label) })
             }
-        }
+        } }
     ) { padding ->
-        LazyColumn(
-            modifier = Modifier.fillMaxSize().padding(padding),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
+        LazyColumn(Modifier.fillMaxSize().padding(padding), contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)) {
             when (selectedTab) {
                 0 -> {
                     item { Text("Companion dashboard", style = MaterialTheme.typography.headlineSmall) }
-                    item { InfoCard("Build planner", "Simulasikan distribusi atribut secara lokal.") }
-                    item { InfoCard("Item database", "Item yang tersedia adalah contoh fiktif, bukan database resmi.") }
-                    item { InfoCard("Server safety", "Tidak ada pembacaan memori game, packet capture, atau perintah ke server.") }
+                    item { InfoCard("Floating overlay", "Panel mengambang bisa dipindah, dilipat, dan ditutup. Tidak membaca memori game atau mengirim perintah ke server.") }
                     item {
-                        Button(
-                            onClick = {
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
-                                    !Settings.canDrawOverlays(context)) {
-                                    val intent = Intent(
-                                        Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                                        Uri.parse("package:" + context.packageName)
-                                    )
-                                    context.startActivity(intent)
-                                    Toast.makeText(
-                                        context,
-                                        "Aktifkan Izinkan tampil di atas aplikasi lain, lalu kembali dan tekan tombol ini lagi.",
-                                        Toast.LENGTH_LONG
-                                    ).show()
-                                } else {
-                                    val intent = Intent(context, FloatingOverlayService::class.java)
-                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                                        context.startForegroundService(intent)
-                                    } else {
-                                        context.startService(intent)
-                                    }
-                                    Toast.makeText(context, "Panel mengambang diaktifkan.", Toast.LENGTH_SHORT).show()
-                                }
-                            },
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text("Aktifkan Jendela Mengambang")
-                        }
+                        Button(onClick = {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(context)) {
+                                context.startActivity(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + context.packageName)))
+                                Toast.makeText(context, "Izinkan tampil di atas aplikasi lain, lalu kembali dan tekan tombol lagi.", Toast.LENGTH_LONG).show()
+                            } else {
+                                val intent = Intent(context, FloatingOverlayService::class.java)
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) context.startForegroundService(intent) else context.startService(intent)
+                                Toast.makeText(context, "Panel mengambang diaktifkan.", Toast.LENGTH_SHORT).show()
+                            }
+                        }, modifier = Modifier.fillMaxWidth()) { Text("Aktifkan Jendela Mengambang") }
                     }
-                    item {
-                        Text(
-                            "Panel dapat dipindahkan dengan menyeret judul AURCUS. Izin tampil di atas aplikasi lain diperlukan.",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.secondary
-                        )
-                    }
+                    item { InfoCard("Batas penggunaan", "Speed dan damage adalah kalkulator/catatan lokal; Map adalah catatan rute; Spawn adalah log manual; Farm adalah timer. Tidak ada cheat, injeksi, otomasi input, atau bypass keamanan/server.") }
+                    item { InfoCard("Data", "Item dan area bawaan hanyalah contoh. ZIP game yang diunggah berisi paket aplikasi hasil build (DEX, native libraries, aset), bukan source Kotlin lengkap. Tidak mengubah APK game.") }
                 }
                 1 -> {
-                    item { Text("Build planner", style = MaterialTheme.typography.headlineSmall) }
-                    item { NumberField("Strength", strength) { strength = it } }
-                    item { NumberField("Vitality", vitality) { vitality = it } }
-                    item { NumberField("Dexterity", dexterity) { dexterity = it } }
-                    item { NumberField("Intelligence", intelligence) { intelligence = it } }
+                    item { Text("Damage calculator", style = MaterialTheme.typography.headlineSmall) }
+                    item { NumberField("ATK / base damage", attack) { attack = it } }
+                    item { OutlinedTextField(value = skillMultiplier, onValueChange = { skillMultiplier = it.filter { c -> c.isDigit() || c == '.' }.take(8) }, label = { Text("Skill multiplier (contoh 1.5)") }, modifier = Modifier.fillMaxWidth(), singleLine = true) }
+                    item { NumberField("Critical bonus (%)", critPercent) { critPercent = it } }
                     item {
-                        val result = BuildPlanner.analyze(
-                            BuildPreset("Current", strength.toIntOrNull() ?: 0,
-                                vitality.toIntOrNull() ?: 0, dexterity.toIntOrNull() ?: 0,
-                                intelligence.toIntOrNull() ?: 0)
-                        )
-                        InfoCard("Summary", "Total: ${result.totalPoints}\nPhysical indicator: ${result.physicalFocusPercent}%\nMagic indicator: ${result.magicFocusPercent}%")
+                        val base = (attack.toDoubleOrNull() ?: 0.0) * (skillMultiplier.toDoubleOrNull() ?: 0.0)
+                        val crit = (critPercent.toDoubleOrNull() ?: 0.0).coerceIn(0.0, 10000.0) / 100.0
+                        InfoCard("Perkiraan lokal", "Normal: ${"%.1f".format(base)}\nDengan bonus kritikal: ${"%.1f".format(base * (1 + crit))}\n\nRumus sederhana untuk perbandingan saja; tidak memodelkan defense, resist, buff, atau formula resmi server.")
                     }
                 }
                 2 -> {
-                    item { Text("Item database", style = MaterialTheme.typography.headlineSmall) }
-                    item {
-                        OutlinedTextField(
-                            value = query, onValueChange = { query = it },
-                            label = { Text("Search item") }, modifier = Modifier.fillMaxWidth(),
-                            singleLine = true
-                        )
-                    }
-                    items(sampleItems.filter { it.name.contains(query, ignoreCase = true) }) { item ->
-                        InfoCard(item.name, "Slot: ${item.slot}\nATK ${item.attack} • DEF ${item.defense} • MAG ${item.magic}\n${item.notes}")
-                    }
+                    item { Text("Map & route notes", style = MaterialTheme.typography.headlineSmall) }
+                    item { InfoCard("Navigasi aman", "Catat area, rute, dan koordinat sendiri. Companion tidak memindahkan karakter atau mengirim teleport request.") }
+                    items(demoMaps) { (title, body) -> InfoCard(title, body) }
+                    item { OutlinedTextField(value = mapNotes, onValueChange = { mapNotes = it }, label = { Text("Catatan map pribadi") }, modifier = Modifier.fillMaxWidth(), minLines = 3) }
+                    item { Text("Catatan tersimpan selama layar ini terbuka.", style = MaterialTheme.typography.bodySmall) }
                 }
                 3 -> {
-                    item { Text("Quest & farming tracker", style = MaterialTheme.typography.headlineSmall) }
-                    items(tasks, key = { it.id }) { task ->
-                        Card {
-                            Row(Modifier.fillMaxWidth().padding(12.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-                                Column(Modifier.weight(1f)) {
-                                    Text(task.title, style = MaterialTheme.typography.titleMedium)
-                                    Text("${task.category} • ${task.currentCount}/${task.targetCount}")
-                                }
-                                Checkbox(checked = task.completed, onCheckedChange = { checked ->
-                                    tasks = tasks.map { if (it.id == task.id) it.copy(completed = checked) else it }
-                                    store.saveTasks(tasks)
-                                })
-                            }
-                        }
+                    item { Text("Spawn / mob log", style = MaterialTheme.typography.headlineSmall) }
+                    item { InfoCard("Mode manual", "Pilih target dan catat kemunculan atau respawn yang kamu amati. Panel ini tidak melakukan spawn mob pada server publik.") }
+                    item { Text("Target", style = MaterialTheme.typography.titleMedium) }
+                    items(demoMobs) { mob ->
+                        Card(Modifier.fillMaxWidth()) { Row(Modifier.fillMaxWidth().padding(12.dp), horizontalArrangement = Arrangement.SpaceBetween) {
+                            Text(mob, modifier = Modifier.weight(1f))
+                            RadioButton(selected = selectedMob == mob, onClick = { selectedMob = mob })
+                        } }
                     }
-                    item {
-                        Button(onClick = {
-                            tasks = tasks + QuestTask("task-${System.currentTimeMillis()}",
-                                "New manual task", "Farming")
-                            store.saveTasks(tasks)
-                        }) { Text("Add task") }
-                    }
+                    item { OutlinedTextField(value = spawnNotes, onValueChange = { spawnNotes = it }, label = { Text("Log spawn / waktu / jumlah") }, modifier = Modifier.fillMaxWidth(), minLines = 3) }
+                    item { InfoCard("Target dipilih", selectedMob) }
                 }
                 4 -> {
-                    item { Text("Equipment comparison", style = MaterialTheme.typography.headlineSmall) }
-                    item {
-                        val delta = EquipmentComparator.compare(sampleItems[0], sampleItems[2])
-                        InfoCard("Demo comparison", "ATK change: ${delta.attackDelta}\nDEF change: ${delta.defenseDelta}\nMAG change: ${delta.magicDelta}\nCompare items in the same slot; these are fictional sample values.")
+                    item { Text("Farm session", style = MaterialTheme.typography.headlineSmall) }
+                    item { InfoCard("Timer sesi", "Waktu: ${farmSeconds / 3600}j ${(farmSeconds % 3600) / 60}m ${farmSeconds % 60}d\nTimer hanya mencatat durasi. Tidak menekan tombol game, menyerang otomatis, atau mengirim input ke server.") }
+                    item { Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Button(onClick = { farmRunning = !farmRunning }, modifier = Modifier.weight(1f)) { Text(if (farmRunning) "Jeda" else "Mulai timer") }
+                        OutlinedButton(onClick = { farmRunning = false; farmSeconds = 0 }, modifier = Modifier.weight(1f)) { Text("Reset") }
+                    } }
+                    item { Text("Checklist farming", style = MaterialTheme.typography.titleMedium) }
+                    items(tasks, key = { it.id }) { task ->
+                        Card { Row(Modifier.fillMaxWidth().padding(12.dp), horizontalArrangement = Arrangement.SpaceBetween) {
+                            Column(Modifier.weight(1f)) { Text(task.title, style = MaterialTheme.typography.titleMedium); Text("${task.category} • ${task.currentCount}/${task.targetCount}") }
+                            Checkbox(checked = task.completed, onCheckedChange = { checked -> tasks = tasks.map { if (it.id == task.id) it.copy(completed = checked) else it }; store.saveTasks(tasks) })
+                        } }
                     }
+                    item { Button(onClick = { tasks = tasks + QuestTask("task-${System.currentTimeMillis()}", "Manual farming task", "Farming"); store.saveTasks(tasks) }) { Text("Tambah tugas") } }
                 }
                 else -> {
-                    item { Text("Local performance", style = MaterialTheme.typography.headlineSmall) }
+                    item { Text("Speed / movement notes", style = MaterialTheme.typography.headlineSmall) }
+                    item { InfoCard("Bukan pengubah kecepatan game", "Gunakan kolom ini untuk membandingkan statistik yang kamu masukkan secara manual. Companion tidak mengubah gerakan karakter atau nilai speed server.") }
+                    item { NumberField("Speed stat saat ini", speedStat) { speedStat = it } }
+                    item { NumberField("Target / benchmark", speedTarget) { speedTarget = it } }
+                    item {
+                        val current = speedStat.toDoubleOrNull() ?: 0.0
+                        val target = speedTarget.toDoubleOrNull() ?: 0.0
+                        val delta = target - current
+                        InfoCard("Perbandingan", "Saat ini: $current\nTarget: $target\nSelisih: ${"%.1f".format(delta)}\n${if (delta > 0) "Target lebih tinggi dari nilai saat ini." else if (delta < 0) "Nilai saat ini sudah melampaui target." else "Nilai saat ini sama dengan target."}")
+                    }
                     item {
                         val snapshot = remember { PerformanceMonitor.snapshot(context) }
-                        InfoCard("Companion process", "App memory (PSS): ${snapshot.companionPssKb} KB\nAvailable device memory: ${snapshot.availableMemoryMb} MB\nLow-memory signal: ${snapshot.lowMemory}\n\nThis does not measure Aurcus FPS or inspect the game process.")
+                        InfoCard("Performa companion", "PSS aplikasi: ${snapshot.companionPssKb} KB\nMemori perangkat tersedia: ${snapshot.availableMemoryMb} MB\nLow-memory: ${snapshot.lowMemory}\nTidak mengukur FPS game.")
                     }
-                    item { InfoCard("Compatibility", "minSdk 28 (Android 9). compileSdk 35 is only the build API level. No game/server integration is included.") }
                 }
             }
         }
@@ -202,9 +172,6 @@ private fun InfoCard(title: String, body: String) {
 
 @Composable
 private fun NumberField(label: String, value: String, onValueChange: (String) -> Unit) {
-    OutlinedTextField(
-        value = value,
-        onValueChange = { onValueChange(it.filter(Char::isDigit).take(6)) },
-        label = { Text(label) }, modifier = Modifier.fillMaxWidth(), singleLine = true
-    )
+    OutlinedTextField(value = value, onValueChange = { onValueChange(it.filter(Char::isDigit).take(8)) },
+        label = { Text(label) }, modifier = Modifier.fillMaxWidth(), singleLine = true)
 }

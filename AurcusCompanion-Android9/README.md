@@ -1,36 +1,18 @@
-# Aurcus Companion — Android 9 target
+# Aurcus Companion Android 9+
 
-Standalone Kotlin/Jetpack Compose companion starter. `minSdk = 28` means Android 9 or later.
-`compileSdk = 35` is used only to compile the app; it does not require Android 15 to run.
+A local Android companion with a draggable floating overlay and manual tools for the public Aurcus Online game. This project does not modify the game APK and does not read game memory, intercept packets, inject code, automate game input, spoof movement/damage, spawn mobs, teleport, or bypass server/security controls.
 
 ## Included
-- Build planner with generic demonstration indicators
-- Searchable fictional sample items
-- Manual quest/farming checklist saved locally in SharedPreferences JSON
-- Basic equipment comparison
-- Dark Material 3 UI
-- Local performance snapshot for the companion process/device memory
-- GitHub Actions workflow to build a debug APK
+- Draggable floating overlay (requires Android's “Display over other apps” permission).
+- Local damage estimate calculator (user-entered values; not the official server formula).
+- Manual map/route notes.
+- Manual mob/spawn observation log (no server-side spawning).
+- Farming session timer and checklist (no automated gameplay).
+- Speed-stat comparison (does not change character movement or game state).
+- Existing local build planner, item examples, comparison, and performance monitor source retained where applicable.
 
-## Build locally
-Requirements: Android Studio, JDK 17, Android SDK Platform 35.
-Open the project folder in Android Studio, sync Gradle, then choose:
-Build > Build Bundle(s) / APK(s) > Build APK(s).
+## Build APK
+Use GitHub Actions workflow `.github/workflows/build-apk.yml`; it builds the Android project under `AurcusCompanion-Android9/` and uploads a debug APK artifact. The APK must be built by CI/Android SDK; this source archive itself is not an APK.
 
-Expected output:
-`app/build/outputs/apk/debug/app-debug.apk`
-
-## Build with GitHub Actions
-1. Create a GitHub repository and upload the contents of this folder.
-2. Open Actions and enable workflows if prompted.
-3. Run "Build Android APK" (or push to main).
-4. Download artifact `aurcus-companion-android9-debug-apk`.
-
-## Compatibility and boundaries
-- This is a starter template, not a verified integration with Aurcus Online.
-- All item stats are fictional sample data, not official data.
-- Build indicators are generic and not official game formulas.
-- Performance snapshot does not inspect game process or game FPS.
-- No game memory reading, packet manipulation, anti-cheat bypass, game automation, or server calls.
-- Public data importer is not implemented yet. Only import public data from sources that permit reuse.
-- Android 9 compatibility still needs runtime testing on an Android 9 emulator.
+## Important
+The uploaded game ZIP is a packaged Android application (DEX, native `.so` libraries, resources and assets), not the original Kotlin source project. This companion is kept separate from the game package; the included demo map/mob/item entries are placeholders and should be replaced only with manually verified, permitted reference data.
