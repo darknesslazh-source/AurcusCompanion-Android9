@@ -1,36 +1,27 @@
-# Aurcus Companion — Android 9 target
+# Aurcus Companion — Visual Toolkit (Android 9+)
 
-Standalone Kotlin/Jetpack Compose companion starter. `minSdk = 28` means Android 9 or later.
-`compileSdk = 35` is used only to compile the app; it does not require Android 15 to run.
+Project Android Studio untuk aplikasi pendamping dengan tema dark fantasy, panel mengambang yang bisa dipindahkan/dilipat, serta kontrol pratinjau visual.
 
-## Included
-- Build planner with generic demonstration indicators
-- Searchable fictional sample items
-- Manual quest/farming checklist saved locally in SharedPreferences JSON
-- Basic equipment comparison
-- Dark Material 3 UI
-- Local performance snapshot for the companion process/device memory
-- GitHub Actions workflow to build a debug APK
+## Fitur
+- Floating overlay dengan menu MOD, DMG, RANGE, AOE, QUEST, dan MORE.
+- Damage HUD preview: skala angka contoh dan durasi indikator.
+- Attack range preview: slider dan lingkaran referensi visual.
+- Skill AoE preview: pengaturan radius dan skala efek visual.
+- Checklist quest lokal, catatan map/spawn/speed, serta timer farming di aplikasi utama.
+- Preferensi slider dan toggle overlay disimpan lokal.
+- Build workflow GitHub Actions untuk menghasilkan debug APK.
 
-## Build locally
-Requirements: Android Studio, JDK 17, Android SDK Platform 35.
-Open the project folder in Android Studio, sync Gradle, then choose:
-Build > Build Bundle(s) / APK(s) > Build APK(s).
+## Batasan penting
+Kontrol DMG/RANGE/AOE hanya mengubah pratinjau di companion. Aplikasi ini tidak mengubah atribut karakter, damage aktual, hitbox, kecepatan, area skill di Aurcus Online publik, tidak menginjeksi proses game, tidak membaca memori game, tidak mengirim input otomatis, dan tidak mengubah data server.
 
-Expected output:
-`app/build/outputs/apk/debug/app-debug.apk`
+## Import dan build
+1. Ekstrak ZIP.
+2. Android Studio → Open → pilih folder yang berisi `settings.gradle.kts`.
+3. Gunakan JDK 17 dan tunggu Gradle Sync.
+4. Pilih Build → Build APK(s), jalankan `build-apk.bat` jika Gradle tersedia di PATH, atau push ke GitHub lalu jalankan Actions workflow `Build Aurcus Companion APK`.
+5. Artifact debug tersedia sebagai `AurcusCompanion-debug-apk`.
 
-## Build with GitHub Actions
-1. Create a GitHub repository and upload the contents of this folder.
-2. Open Actions and enable workflows if prompted.
-3. Run "Build Android APK" (or push to main).
-4. Download artifact `aurcus-companion-android9-debug-apk`.
+Konfigurasi: Android Gradle Plugin 8.7.3, Kotlin 2.0.21, compileSdk 35, minSdk 28, target Java/Kotlin JVM 17.
 
-## Compatibility and boundaries
-- This is a starter template, not a verified integration with Aurcus Online.
-- All item stats are fictional sample data, not official data.
-- Build indicators are generic and not official game formulas.
-- Performance snapshot does not inspect game process or game FPS.
-- No game memory reading, packet manipulation, anti-cheat bypass, game automation, or server calls.
-- Public data importer is not implemented yet. Only import public data from sources that permit reuse.
-- Android 9 compatibility still needs runtime testing on an Android 9 emulator.
+## Status verifikasi
+ZIP sumber diperiksa integritasnya. Perbaikan statis dilakukan pada konstanta warna Kotlin di `FloatingOverlayService.kt` (mengganti `const val` yang memakai `.toInt()` menjadi `val`). Build APK penuh belum diverifikasi di lingkungan ini; verifikasi melalui Android Studio atau GitHub Actions.
