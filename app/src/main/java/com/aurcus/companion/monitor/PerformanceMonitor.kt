@@ -5,12 +5,12 @@ import android.content.Context
 import android.os.Debug
 
 data class LocalPerformanceSnapshot(
-    val companionPssKb: Int,
+    val companionPssKb: Long,
     val availableMemoryMb: Long,
     val lowMemory: Boolean
 )
 
-/** Measures the companion app and general device memory, not the game process. */
+/** Measures this companion app and general device memory, not the game process. */
 object PerformanceMonitor {
     fun snapshot(context: Context): LocalPerformanceSnapshot {
         val manager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager

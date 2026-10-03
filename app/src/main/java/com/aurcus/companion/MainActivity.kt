@@ -14,10 +14,13 @@ class MainActivity : ComponentActivity() {
         setContent {
             MaterialTheme(
                 colorScheme = darkColorScheme(
-                    primary = Color(0xFF65D6C4),
-                    secondary = Color(0xFFE2B76B),
-                    background = Color(0xFF101318),
-                    surface = Color(0xFF1B2028)
+                    primary = Color(0xFF22B8F0),
+                    onPrimary = Color(0xFF071321),
+                    secondary = Color(0xFFE8B84B),
+                    background = Color(0xFF071321),
+                    surface = Color(0xFF10243A),
+                    onSurface = Color(0xFFF5F8FC),
+                    onBackground = Color(0xFFF5F8FC)
                 )
             ) { CompanionScreen() }
         }

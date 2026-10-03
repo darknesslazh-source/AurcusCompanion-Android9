@@ -1,36 +1,42 @@
-# Aurcus Companion — Android 9 target
+# Aurcus Companion — Visual Toolkit (Android 9+)
 
-Standalone Kotlin/Jetpack Compose companion starter. `minSdk = 28` means Android 9 or later.
-`compileSdk = 35` is used only to compile the app; it does not require Android 15 to run.
+Aplikasi Android pendamping dengan tema dark-fantasy, panel mengambang yang dapat dipindahkan/dilipat, alat catatan, checklist, timer, dan pratinjau visual lokal.
 
-## Included
-- Build planner with generic demonstration indicators
-- Searchable fictional sample items
-- Manual quest/farming checklist saved locally in SharedPreferences JSON
-- Basic equipment comparison
-- Dark Material 3 UI
-- Local performance snapshot for the companion process/device memory
-- GitHub Actions workflow to build a debug APK
+## Fitur
 
-## Build locally
-Requirements: Android Studio, JDK 17, Android SDK Platform 35.
-Open the project folder in Android Studio, sync Gradle, then choose:
-Build > Build Bundle(s) / APK(s) > Build APK(s).
+- Dashboard dan floating overlay.
+- Panel Damage HUD untuk mengubah skala angka contoh.
+- Panel Attack Range untuk melihat lingkaran referensi visual.
+- Panel Skill AoE dan Skill Effect untuk mengubah skala pratinjau lokal.
+- Checklist quest dan tugas farming yang disimpan lokal.
+- Catatan map/rute, spawn tracker manual, dan pembanding statistik speed.
+- Pengaturan overlay disimpan pada perangkat.
+- GitHub Actions membangun debug APK dan mengunggahnya sebagai artifact.
 
-Expected output:
-`app/build/outputs/apk/debug/app-debug.apk`
+## Batasan fungsi
 
-## Build with GitHub Actions
-1. Create a GitHub repository and upload the contents of this folder.
-2. Open Actions and enable workflows if prompted.
-3. Run "Build Android APK" (or push to main).
-4. Download artifact `aurcus-companion-android9-debug-apk`.
+Pengaturan Damage, Attack Range, AoE, dan Speed di aplikasi ini adalah kalkulator atau pratinjau companion saja. Pengaturan tersebut **tidak mengubah** damage aktual, hitbox, jangkauan serangan, kecepatan karakter, atau server Aurcus Online. Aplikasi tidak menginjeksi proses game, membaca memori game, maupun mengirim input gameplay otomatis.
 
-## Compatibility and boundaries
-- This is a starter template, not a verified integration with Aurcus Online.
-- All item stats are fictional sample data, not official data.
-- Build indicators are generic and not official game formulas.
-- Performance snapshot does not inspect game process or game FPS.
-- No game memory reading, packet manipulation, anti-cheat bypass, game automation, or server calls.
-- Public data importer is not implemented yet. Only import public data from sources that permit reuse.
-- Android 9 compatibility still needs runtime testing on an Android 9 emulator.
+## Build APK melalui GitHub Actions
+
+1. Ekstrak ZIP ini.
+2. Unggah **seluruh isi folder ini** ke root repositori GitHub (termasuk folder tersembunyi `.github/workflows`). `settings.gradle.kts` harus langsung berada di root repositori.
+3. Commit dan push ke branch `main` atau `master`, atau buka tab **Actions** dan jalankan workflow **Build Aurcus Companion APK** dengan **Run workflow**.
+4. Tunggu job selesai. Jika statusnya **Success**, buka run tersebut dan unduh artifact `AurcusCompanion-debug-apk`.
+5. Ekstrak artifact untuk mendapatkan `app-debug.apk`.
+
+Jika build gagal, buka langkah **Compile Kotlin and build debug APK** dan lihat pesan pertama `e:` atau `error:`. Artifact `AurcusCompanion-build-diagnostics` mungkin tersedia untuk membantu diagnosis.
+
+## Build lokal dengan Android Studio
+
+- JDK 17
+- Android SDK Platform 35 dan Build Tools 35.0.0
+- Android Gradle Plugin 8.7.3
+- Gradle 8.9
+- Kotlin 2.0.21
+
+Buka folder proyek yang berisi `settings.gradle.kts`, tunggu Gradle Sync, lalu pilih **Build → Build APK(s)**. Output debug biasanya berada di `app/build/outputs/apk/debug/app-debug.apk`.
+
+## Status verifikasi
+
+Konfigurasi dan workflow disusun untuk build di GitHub Actions. Keberhasilan APK hanya terkonfirmasi setelah workflow benar-benar selesai dengan status **Success**; ZIP sumber saja bukan bukti APK sudah terkompilasi.
