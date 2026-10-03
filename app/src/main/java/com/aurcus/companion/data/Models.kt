@@ -24,7 +24,8 @@ data class QuestTask(
     val category: String,
     val targetCount: Int = 1,
     val currentCount: Int = 0,
-    val completed: Boolean = false
+    val completed: Boolean = false,
+    val hidden: Boolean = false
 )
 
 data class BuildSummary(
@@ -32,3 +33,5 @@ data class BuildSummary(
     val physicalFocusPercent: Int,
     val magicFocusPercent: Int
 )
+
+data class SavedLocation(val id: String, val name: String, val note: String)
