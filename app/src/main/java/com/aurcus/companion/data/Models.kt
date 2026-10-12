@@ -32,3 +32,16 @@ data class BuildSummary(
     val physicalFocusPercent: Int,
     val magicFocusPercent: Int
 )
+
+/** Satu baris rencana modifikasi build milik pengguna (catatan lokal, bukan perubahan pada game). */
+data class BuildModification(
+    val id: String,
+    val templateId: String,
+    val name: String,
+    val category: String,
+    val target: String = "",
+    val fromLevel: Int = 0,
+    val toLevel: Int = 1,
+    val note: String = "",
+    val done: Boolean = false
+)
