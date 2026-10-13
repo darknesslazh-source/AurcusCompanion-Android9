@@ -1,0 +1,35 @@
+Aurcus Companion — string literal evidence extracted from uploaded classes.dex
+This file is a string index only. It does not identify callable APIs or prove runtime behavior.
+
+ASK_RARE_MATERIAL
+CHANNEL
+CHARACTER_CREATION
+CONFIG_CLASSIC_CONTROL
+CURRENCY_NORMAL
+DEAD_WAIT_RESPAWN
+DISPLAY_ACHIEVED
+ERROR_ENTER_ROOM_SEARCH_NO_ROOM
+ERROR_TRADE_DECIDED
+GACHA_RARE_S
+GET_TREASURE_BOX_ITEM
+GUILD_HOUSE
+NORMAL_ATTACK_HIT_EFFECT
+NUMBER_OF_ITEM
+PLEASE_EQUIP_CHOICE
+PT_NAME
+PVP_ROOM_RULE
+PVP_ROOM_TITLE
+SHOP_SOLD_OUT
+SUCCESS_AUCTION_BUY
+SUCCESS_RESET_SKILL
+USE_STATUS_POINT
+draw_guide_quest
+draw_main_player_name
+draw_minimap_ptm
+draw_other_player_name
+item_tab
+mini_map_type
+player_list_sort_type
+rotate_camera_speed
+view_shadow_main_player
+view_shadow_other_player
